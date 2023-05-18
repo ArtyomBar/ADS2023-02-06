@@ -1,3 +1,5 @@
+
+
 package by.it.group251004.baranovskii.lesson01.lesson01.lesson02;
 /*
 Даны
@@ -11,19 +13,28 @@ package by.it.group251004.baranovskii.lesson01.lesson01.lesson02;
 
 Необходимо собрать наиболее дорогой вариант рюкзака для этого объема
 Предметы можно резать на кусочки (т.е. алгоритм будет жадным)
+
  */
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.Comparator;
+import java.util.Arrays;
+
 
 public class C_GreedyKnapsack {
     private static class Item implements Comparable<Item> {
         int cost;
         int weight;
 
+        double PricePerWeight;
+
+
         Item(int cost, int weight) {
             this.cost = cost;
             this.weight = weight;
+            PricePerWeight=(double) cost/weight;
         }
 
         @Override
@@ -35,13 +46,14 @@ public class C_GreedyKnapsack {
         }
 
         @Override
-        public int compareTo(Item o) {
+        public int compareTo(Item item) {
             //тут может быть ваш компаратор
 
 
-            return 0;
+            return Double.compare(this.PricePerWeight,item.PricePerWeight);
         }
     }
+
 
     Item[] shellsSort(Item[] items) {
         int gap = items.length / 2;
@@ -77,6 +89,7 @@ public class C_GreedyKnapsack {
         return result;
     }
 
+
     double calc(File source) throws FileNotFoundException {
         Scanner input = new Scanner(source);
         int n = input.nextInt();      //сколько предметов в файле
@@ -93,12 +106,35 @@ public class C_GreedyKnapsack {
         //тут необходимо реализовать решение задачи
         //итогом является максимально воможная стоимость вещей в рюкзаке
         //вещи можно резать на кусочки (непрерывный рюкзак)
+
+        //double result = 0;
+
         items = shellsSort(items);
+
         //тут реализуйте алгоритм сбора рюкзака
         //будет особенно хорошо, если с собственной сортировкой
         //кроме того, можете описать свой компаратор в классе Item
         //ваше решение.
-        double result = getMaximumPackage(items, W);
+
+
+        double result = 0;
+
+        Arrays.sort(items,Comparator.reverseOrder());
+
+        for (int i = 0,CurW=0;(i<items.length) && (CurW<W);i++){
+           if (CurW+items[i].weight>W) {
+               result += items[i].PricePerWeight*(W-CurW);
+               CurW=W;
+           }
+           else{
+               result +=items[i].cost;
+               CurW +=items[i].weight;
+           }
+        }
+
+
+        result = getMaximumPackage(items, W);
+
         System.out.printf("Удалось собрать рюкзак на сумму %f\n",result);
         return result;
     }
